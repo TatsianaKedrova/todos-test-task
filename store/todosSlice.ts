@@ -8,21 +8,37 @@ export type TTodo = {
   title: string;
 };
 
-const initialState: TTodo[] = [];
+export type InitialTodosStateType = {
+  todos: TTodo[];
+  checkedState: boolean[];
+};
+
+const initialState: InitialTodosStateType = {
+  todos: [],
+  checkedState: [],
+};
 
 export const todosSlice = createSlice({
   name: "todos",
   initialState,
   reducers: {
     addTodo: (state, action) => {
-      state.push(action.payload);
+      state.todos.push(action.payload);
+      state.checkedState.push(false);
     },
-    toggleTodo: (state, action) => {},
+    toggleTodo: (state, action) => {
+      const updatedCheckedState = state.checkedState.map((item, index) =>
+        index === action.payload ? !item : item
+      );
+      state.checkedState = updatedCheckedState;
+    },
     deleteTodo: (state, action) => {
-      const todoToDelete = state.find((todo) => todo.id === action.payload);
+      const todoToDelete = state.todos.find(
+        (todo) => todo.id === action.payload
+      );
       if (todoToDelete) {
-        const deleteIndex = state.indexOf(todoToDelete);
-        state.splice(deleteIndex, 1);
+        const deleteIndex = state.todos.indexOf(todoToDelete);
+        state.todos.splice(deleteIndex, 1);
       }
     },
   },

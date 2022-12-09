@@ -1,12 +1,21 @@
 import { useDispatch, useSelector } from "react-redux";
-import { addTodo, TTodo } from "../store/todosSlice";
+import {
+  addTodo,
+  InitialTodosStateType,
+  toggleTodo,
+} from "../store/todosSlice";
 import React from "react";
 import { RootState } from "../store/store";
 import InputBase from "@mui/material/InputBase";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { IconButton, Paper } from "@mui/material";
+import { Box, Checkbox, IconButton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
+import CheckIcon from "@mui/icons-material/Check";
+import PaperWrapper from "./PaperWrapper";
+import { inputStyles } from "../styles/inputContainer.styles";
+import { v1 } from "uuid";
+import CloseIcon from "@mui/icons-material/Close";
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   "& .MuiInputBase-input": {
@@ -22,48 +31,51 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const InputContainer = () => {
+  const theme = useTheme();
   const [inputValue, setValue] = React.useState<string>("");
   const [isAnyTodos, setIsAnyTodos] = React.useState<boolean>(false);
   const [isChecked, setIsChecked] = React.useState<boolean>(false);
-  const todos = useSelector<RootState, TTodo[]>((state) => state.todos);
+  const { todos, checkedState } = useSelector<RootState, InitialTodosStateType>(
+    (state) => state.todos
+  );
   const dispatch = useDispatch();
+  const [isCloseIcon, setIsCloseIcon] = React.useState(
+    [...Array(todos.length)].fill(false)
+  );
 
-  const theme = useTheme();
+  const handleOnChange = (position: number) => {
+    dispatch(toggleTodo(position));
+  };
+
+  // const handleCloseIcon = (position: number) => {
+  //   const updatedClosedIconState = isCloseIcon.map((item, index) =>
+  //     index === position ? !item : item
+  //   );
+  //   setCheckedState(updatedClosedIconState);
+  // };
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
   };
   const handleEnterSubmit = (event: React.KeyboardEvent) => {
     if (inputValue.trim() && event.key === "Enter") {
-      dispatch(addTodo(inputValue));
+      dispatch(addTodo({ title: inputValue, id: v1(), status: "all" }));
       setValue("");
     }
   };
 
-  const handleSetChecked = () => {
+  const handleAllSetChecked = () => {
     setIsChecked((prev) => !prev);
   };
 
   return (
     <>
-      <Paper
-        elevation={3}
-        square={true}
-        sx={{
-          p: "16px 16px 16px 0px",
-          display: "flex",
-          alignItems: "center",
-          width: 550,
-          height: "65.59px",
-        }}
-      >
-        <IconButton onClick={handleSetChecked}>
+      <PaperWrapper height="65.59px">
+        <IconButton onClick={handleAllSetChecked}>
           <ExpandMoreIcon
             fontSize="large"
             sx={{
-              color: isChecked
-                ? theme.palette.primary.main
-                : theme.palette.secondary.main,
+              color: isChecked ? "#737373" : theme.palette.secondary.main,
               visibility: todos.length ? "visible" : "hidden",
             }}
           />
@@ -76,7 +88,68 @@ const InputContainer = () => {
           onKeyDown={handleEnterSubmit}
           value={inputValue}
         />
-      </Paper>
+      </PaperWrapper>
+
+      {todos.length > 0 &&
+        todos.map((todo, index) => {
+          return (
+            <div key={todo.id}>
+              <PaperWrapper
+                height="58.8px"
+                // setIsCloseIcon={setIsCloseIcon}
+                // position={index}
+                // todoId={todo.id}
+              >
+                <Checkbox
+                  checked={checkedState[index]}
+                  onChange={() => handleOnChange(index)}
+                  icon={
+                    <Box
+                      sx={[
+                        inputStyles.checkboxIcon,
+                        { border: `1px solid ${theme.palette.secondary.main}` },
+                      ]}
+                    ></Box>
+                  }
+                  checkedIcon={
+                    <Box sx={inputStyles.checkboxIcon}>
+                      <CheckIcon htmlColor="#55d798" />
+                    </Box>
+                  }
+                />
+                <Typography
+                  sx={[
+                    inputStyles.todoText,
+                    {
+                      color:
+                        checkedState[index] === true
+                          ? theme.palette.secondary.main
+                          : theme.palette.primary.main,
+                      textDecoration:
+                        checkedState[index] === true ? "line-through" : "none",
+                    },
+                  ]}
+                >
+                  {todo.title}
+                </Typography>
+                {/* <CloseIcon
+                className="closeIcon"
+                htmlColor={theme.palette.info.main}
+                sx={{
+                  position: "absolute",
+                  right: "20px",
+                  width: "23px",
+                  height: "23px",
+                  visibility: isCloseIcon ? "visible" : "hidden",
+                  "&:hover": {
+                    color: theme.palette.info.dark,
+                  },
+                }}
+              /> */}
+              </PaperWrapper>
+            </div>
+          );
+        })}
     </>
   );
 };
