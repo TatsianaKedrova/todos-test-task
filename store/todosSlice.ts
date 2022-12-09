@@ -33,13 +33,10 @@ export const todosSlice = createSlice({
       state.checkedState = updatedCheckedState;
     },
     deleteTodo: (state, action) => {
-      const todoToDelete = state.todos.find(
-        (todo) => todo.id === action.payload
+      const updatedTodos = state.todos.filter(
+        (todo, index) => index !== action.payload
       );
-      if (todoToDelete) {
-        const deleteIndex = state.todos.indexOf(todoToDelete);
-        state.todos.splice(deleteIndex, 1);
-      }
+      state.todos = updatedTodos;
     },
   },
 });

@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
   addTodo,
+  deleteTodo,
   InitialTodosStateType,
   toggleTodo,
 } from "../store/todosSlice";
@@ -47,6 +48,9 @@ const InputContainer = () => {
     dispatch(toggleTodo(position));
   };
 
+  const handleDeleteTodo = (index: number) => {
+    dispatch(deleteTodo(index));
+  };
   // const handleCloseIcon = (position: number) => {
   //   const updatedClosedIconState = isCloseIcon.map((item, index) =>
   //     index === position ? !item : item
@@ -132,20 +136,26 @@ const InputContainer = () => {
                 >
                   {todo.title}
                 </Typography>
-                {/* <CloseIcon
-                className="closeIcon"
-                htmlColor={theme.palette.info.main}
-                sx={{
-                  position: "absolute",
-                  right: "20px",
-                  width: "23px",
-                  height: "23px",
-                  visibility: isCloseIcon ? "visible" : "hidden",
-                  "&:hover": {
-                    color: theme.palette.info.dark,
-                  },
-                }}
-              /> */}
+                <IconButton
+                  onClick={() => handleDeleteTodo(index)}
+                  sx={{
+                    position: "absolute",
+                    right: "20px",
+                    visibility: isCloseIcon ? "visible" : "hidden",
+                  }}
+                >
+                  <CloseIcon
+                    className="closeIcon"
+                    htmlColor={theme.palette.info.main}
+                    sx={{
+                      width: "23px",
+                      height: "23px",
+                      "&:hover": {
+                        color: theme.palette.info.dark,
+                      },
+                    }}
+                  />
+                </IconButton>
               </PaperWrapper>
             </div>
           );
